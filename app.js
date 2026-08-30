@@ -28,12 +28,10 @@ const features=[
 ];
 document.getElementById('featureScroll').innerHTML=features.map(x=>`<div class="mini-feature"><b>${x[0]} ${x[1]}</b><p>${x[2]}</p></div>`).join('');
 document.getElementById('year').textContent=new Date().getFullYear();
-const modal=document.getElementById('employeeModal');document.getElementById('employeeDemoBtn').onclick=()=>{modal.hidden=false;renderEmployees()};document.querySelector('[data-close]').onclick=()=>modal.hidden=true;modal.addEventListener('click',e=>{if(e.target===modal)modal.hidden=true});
-function employees(){try{return JSON.parse(sessionStorage.getItem('demoEmployees')||'[]')}catch{return[]}}
-function renderEmployees(){const rows=employees();document.getElementById('employeeList').innerHTML=rows.length?rows.map(x=>`<div class="emp-row"><b>${x.name}</b> — ${x.role} • ${x.site} • ${x.shift}</div>`).join(''):'<p>لا يوجد موظفون مضافون في هذه الجلسة.</p>'}
-document.getElementById('employeeForm').onsubmit=e=>{e.preventDefault();const rows=employees();rows.push({name:empName.value.trim(),role:empRole.value.trim(),site:empSite.value.trim(),shift:empShift.value.trim()});sessionStorage.setItem('demoEmployees',JSON.stringify(rows));e.target.reset();renderEmployees()};
 document.getElementById('feedbackForm').onsubmit=e=>{e.preventDefault();sessionStorage.setItem('demoFeedback',JSON.stringify({rating:rating.value,favorite:favorite.value,comment:comment.value,at:new Date().toISOString()}));feedbackStatus.textContent='✅ تم حفظ رأيك داخل جلسة التجربة الحالية.'};
-document.getElementById('adminDemoBtn').onclick=()=>demoScreen.scrollIntoView({behavior:'smooth',block:'center'});
+const demoVideo=document.getElementById('demoVideo');
+document.getElementById('mobileDemoBtn').onclick=()=>{demoVideo.src='mobile-app-demo.mp4';demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
+document.getElementById('adminDemoBtn').onclick=()=>{demoVideo.src='admin-demo.mp4';demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
 document.getElementById('tvDemoBtn').onclick=()=>document.getElementById('tv').scrollIntoView({behavior:'smooth'});
 document.querySelectorAll('[data-tv]').forEach(b=>b.onclick=()=>{tvVideo.src=b.dataset.tv;tvVideo.play().catch(()=>{})});
 document.getElementById('fullscreenBtn').onclick=()=>document.getElementById('tvScreen').requestFullscreen?.();
