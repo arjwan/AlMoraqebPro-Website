@@ -28,10 +28,15 @@ const features=[
 ];
 document.getElementById('featureScroll').innerHTML=features.map(x=>`<div class="mini-feature"><b>${x[0]} ${x[1]}</b><p>${x[2]}</p></div>`).join('');
 document.getElementById('year').textContent=new Date().getFullYear();
+const visitorCount=document.getElementById('visitorCount');
+const storedVisits=Number.parseInt(localStorage.getItem('almoraqebVisits')||'0',10);
+const visits=Number.isFinite(storedVisits)?storedVisits+1:1;
+localStorage.setItem('almoraqebVisits',String(visits));
+visitorCount.textContent=visits.toLocaleString('ar-IQ');
 document.getElementById('feedbackForm').onsubmit=e=>{e.preventDefault();sessionStorage.setItem('demoFeedback',JSON.stringify({rating:rating.value,favorite:favorite.value,comment:comment.value,at:new Date().toISOString()}));feedbackStatus.textContent='✅ تم حفظ رأيك داخل جلسة التجربة الحالية.'};
 const demoVideo=document.getElementById('demoVideo');
 document.getElementById('mobileDemoBtn').onclick=()=>{demoVideo.src='mobile-app-demo.mp4';demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
-document.getElementById('adminDemoBtn').onclick=()=>{demoVideo.src='admin-demo.mp4';demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
+document.getElementById('adminDemoBtn').onclick=()=>{demoVideo.src='admin-demo-web.mp4';demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
 document.getElementById('tvDemoBtn').onclick=()=>document.getElementById('tv').scrollIntoView({behavior:'smooth'});
 document.querySelectorAll('[data-tv]').forEach(b=>b.onclick=()=>{tvVideo.src=b.dataset.tv;tvVideo.play().catch(()=>{})});
 document.getElementById('fullscreenBtn').onclick=()=>document.getElementById('tvScreen').requestFullscreen?.();
