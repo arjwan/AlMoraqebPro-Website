@@ -4,4 +4,4 @@ compatibility_date = "2026-09-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "almoraqebpro-visitors"
-database_id = "REPLACE_WITH_CLOUDFLARE_D1_DATABASE_ID"
+database_id = "8667f5d1-1b48-4727-9a00-d469e607ca9e"
