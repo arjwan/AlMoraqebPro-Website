@@ -29,14 +29,19 @@ const features=[
 document.getElementById('featureScroll').innerHTML=features.map(x=>`<div class="mini-feature"><b>${x[0]} ${x[1]}</b><p>${x[2]}</p></div>`).join('');
 document.getElementById('year').textContent=new Date().getFullYear();
 const visitorCount=document.getElementById('visitorCount');
-const storedVisits=Number.parseInt(localStorage.getItem('almoraqebVisits')||'0',10);
-const visits=Number.isFinite(storedVisits)?storedVisits+1:1;
-localStorage.setItem('almoraqebVisits',String(visits));
-visitorCount.textContent=visits.toLocaleString('ar-IQ');
+function showLocalVisitFallback(){const storedVisits=Number.parseInt(localStorage.getItem('almoraqebVisits')||'0',10);const visits=Number.isFinite(storedVisits)?storedVisits+1:1;localStorage.setItem('almoraqebVisits',String(visits));visitorCount.textContent=visits.toLocaleString('ar-IQ');}
+fetch('/api/visitors',{cache:'no-store'}).then(response=>{if(!response.ok)throw new Error('D1 unavailable');return response.json()}).then(data=>{visitorCount.textContent=Number(data.visits).toLocaleString('ar-IQ')}).catch(showLocalVisitFallback);
 document.getElementById('feedbackForm').onsubmit=e=>{e.preventDefault();sessionStorage.setItem('demoFeedback',JSON.stringify({rating:rating.value,favorite:favorite.value,comment:comment.value,at:new Date().toISOString()}));feedbackStatus.textContent='✅ تم حفظ رأيك داخل جلسة التجربة الحالية.'};
 const demoVideo=document.getElementById('demoVideo');
-document.getElementById('mobileDemoBtn').onclick=()=>{demoVideo.src='mobile-app-demo.mp4';demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
-document.getElementById('adminDemoBtn').onclick=()=>{demoVideo.src='admin-demo-web.mp4';demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
+const presenterVideo=document.getElementById('presenterVideo');
+const presenterToggle=document.getElementById('presenterToggle');
+const presenterStatus=document.getElementById('presenterStatus');
+const presenterSources={mobile:'media/presenter/mobile-explanation.mp4',admin:'media/presenter/admin-explanation.mp4'};
+function setPresenter(mode){presenterVideo.src=presenterSources[mode];presenterVideo.load();presenterVideo.onloadeddata=()=>{presenterVideo.hidden=false;presenterToggle.disabled=false;presenterStatus.textContent='شرح صوتي ومزامنة حركة الشفاه جاهزان عند إضافة فيديو المقدمة';};presenterVideo.onerror=()=>{presenterVideo.hidden=true;presenterToggle.disabled=true;presenterStatus.textContent='فيديو المقدمة النهائي غير مضاف بعد';};}
+presenterToggle.onclick=()=>{if(presenterVideo.paused){presenterVideo.play().catch(()=>{});presenterToggle.textContent='إيقاف الشرح';presenterToggle.setAttribute('aria-pressed','true')}else{presenterVideo.pause();presenterToggle.textContent='تشغيل الشرح';presenterToggle.setAttribute('aria-pressed','false')}};
+setPresenter('mobile');
+document.getElementById('mobileDemoBtn').onclick=()=>{demoVideo.src='mobile-app-demo.mp4';setPresenter('mobile');demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
+document.getElementById('adminDemoBtn').onclick=()=>{demoVideo.src='admin-demo-web.mp4';setPresenter('admin');demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
 document.getElementById('tvDemoBtn').onclick=()=>document.getElementById('tv').scrollIntoView({behavior:'smooth'});
 document.querySelectorAll('[data-tv]').forEach(b=>b.onclick=()=>{tvVideo.src=b.dataset.tv;tvVideo.play().catch(()=>{})});
 document.getElementById('fullscreenBtn').onclick=()=>document.getElementById('tvScreen').requestFullscreen?.();
