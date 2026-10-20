@@ -6,9 +6,9 @@
   // Company advertisement sits alongside CMS posts in the home section, not in a separate oversized banner.
   const home=document.getElementById('home');
   if(home){
-   const hero=home.querySelector('.hero .wrap');
+   const hero=home.querySelector('.hero');
    const root=document.getElementById('cms-home')||document.createElement('div');
-   if(!root.isConnected){root.id='cms-home';root.className='cms-content-grid arjwan-company-ads';root.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:18px;margin-top:24px';(hero||home).append(root)}
+   if(!root.isConnected){root.id='cms-home';root.className='cms-content-grid arjwan-company-ads';root.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:18px;margin-top:24px';hero?hero.after(root):home.prepend(root)}
    const company=document.createElement('article');company.className='cms-card company-ad-card';
    company.innerHTML='<span class="company-ad-kicker">شركة عراقية • حلول أعمال ذكية</span><h3>الأرجوان للبرمجيات والحلول الذكية</h3><p>نطوّر أنظمة المحاسبة ERP والكاشير وإدارة الشركات والمخازن والحضور والرواتب وتطبيقات الهواتف والحلول المخصصة للأعمال.</p><div class="company-ad-contact"><a href="tel:+9647807807491">07807807491</a><a href="tel:+9647737317828">07737317828</a><a href="mailto:mohmmed1628@gmail.com">mohmmed1628@gmail.com</a></div><a class="company-ad-action" href="#sales">تواصل مع المبيعات ←</a>';
    root.prepend(company);
