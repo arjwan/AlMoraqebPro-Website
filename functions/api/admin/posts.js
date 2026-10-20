@@ -1,3 +1,4 @@
+function validHttps(v){try{const u=new URL(v);return u.protocol==='https:'&&!u.username&&!u.password&&v.length<2048}catch{return false}}
 const response=(data,status=200)=>Response.json(data,{status,headers:{"Cache-Control":"no-store"}});
 export async function onRequestGet({request,env,data:identity}) {
  if(!identity?.cmsAuthorized)return response({error:"Unauthorized"},401);
@@ -12,7 +13,7 @@ export async function onRequestPost({request,env,data:identity}) {
  if(!data||typeof data!=="object"||Array.isArray(data))return response({error:"Invalid JSON object"},400);
  const title=String(data.title||"").trim(),body=String(data.body||"").trim(),status=data.status==="published"?"published":"draft";
  if(!title||title.length>180||body.length>30000)return response({error:"Invalid title or body"},400);
- const validUrl=v=>!v||(/^https:\/\//.test(v)&&v.length<2048);
+ const validUrl=v=>!v||/^\/api\/media\/[a-f0-9-]{36}\.(jpg|png|webp|gif)$/.test(v)||validHttps(v);
  const image=String(data.image_url||""),video=String(data.video_url||"");
  if(!validUrl(image)||!validUrl(video))return response({error:"HTTPS URLs required"},400);
  const id=crypto.randomUUID();
@@ -28,7 +29,7 @@ export async function onRequestPut({request,env,data:identity}) {
  if(!/^[a-f0-9-]{36}$/.test(id)||!title||title.length>180||body.length>30000)return response({error:"Invalid input"},400);
  const status=data.status==="published"?"published":"draft";
  const image=String(data.image_url||""),video=String(data.video_url||"");
- if([image,video].some(v=>v&&(!v.startsWith("https://")||v.length>2048)))return response({error:"Invalid media URL"},400);
+ if([image,video].some(v=>v&&!/^\/api\/media\/[a-f0-9-]{36}\.(jpg|png|webp|gif)$/.test(v)&&!validHttps(v)))return response({error:"Invalid media URL"},400);
  const result=await env.DB.prepare("UPDATE cms_posts SET title=?,body=?,image_url=?,video_url=?,status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(title,body,image||null,video||null,status,id).run();
  if(!result.meta?.changes)return response({error:"Not found"},404);
  return response({ok:true,id});

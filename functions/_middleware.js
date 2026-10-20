@@ -31,5 +31,16 @@ export async function onRequest({request,env,next,data={}}){
  }catch{return forbidden(401)}
  }catch{return forbidden(503)}
  data.cmsAuthorized=true;
- return next();
+ const writing=!['GET','HEAD','OPTIONS'].includes(request.method);
+ let auditId;
+ if(writing){
+  if(!env.DB)return forbidden(503);
+  auditId=crypto.randomUUID();
+  try{const inserted=await env.DB.prepare("INSERT INTO cms_audit(id,actor,method,path) SELECT ?,?,?,? WHERE (SELECT COUNT(*) FROM cms_audit WHERE actor=? AND created_at>=datetime('now','-1 hour'))<60").bind(auditId,payload.email,request.method,path,payload.email).run();if(!inserted.meta?.changes)return forbidden(429)}catch{return forbidden(503)}
+ }
+ let response;
+ try{response=await next()}catch{response=new Response('تعذر إكمال العملية. حاول مجدداً.',{status:503})}
+ if(auditId){try{await env.DB.prepare('UPDATE cms_audit SET status=? WHERE id=?').bind(response.status,auditId).run()}catch{console.error('CMS audit status update failed')}}
+ const headers=new Headers(response.headers);headers.set('Cache-Control','no-store');headers.set('X-Content-Type-Options','nosniff');headers.set('X-Frame-Options','DENY');
+ return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
 }
