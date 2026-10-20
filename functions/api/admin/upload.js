@@ -1,7 +1,6 @@
 const reply=(data,status=200)=>Response.json(data,{status,headers:{"Cache-Control":"no-store"}});
-export async function onRequestPost({request,env}){
- const token=request.headers.get("Authorization")?.replace(/^Bearer /,"");
- if(!env.CMS_ADMIN_TOKEN||!token||token!==env.CMS_ADMIN_TOKEN)return reply({error:"Unauthorized"},401);
+export async function onRequestPost({request,env,data:identity}){
+ if(!identity?.cmsAuthorized)return reply({error:"Unauthorized"},401);
  if(!env.CMS_MEDIA)return reply({error:"R2 binding CMS_MEDIA missing"},503);
  const type=request.headers.get("Content-Type")||"";
  const allowed={"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif","video/mp4":"mp4","video/webm":"webm"};
