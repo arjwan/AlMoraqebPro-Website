@@ -1,7 +1,9 @@
+# Local development only; Pages bindings are managed in Cloudflare.
+# Do not add pages_build_output_dir without reviewing both environments.
 name = "almoraqebpro-website"
 compatibility_date = "2026-09-01"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "almoraqebpro-visitors"
-database_id = "8667f5d1-1b48-4727-9a00-d469e607ca9e"
+database_name = "almoraqebpro-cms-preview"
+database_id = "9fc1d766-60f0-4b48-94c4-a1f03a41029c"
