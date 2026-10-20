@@ -10,6 +10,7 @@ export async function onRequestPost({request,env}) {
  if(!authorized(request,env))return response({error:"Unauthorized"},401);
  if(!env.DB)return response({error:"Database unavailable"},503);
  let data;try{data=await request.json()}catch{return response({error:"Invalid JSON"},400)}
+ if(!data||typeof data!=="object"||Array.isArray(data))return response({error:"Invalid JSON object"},400);
  const title=String(data.title||"").trim(),body=String(data.body||"").trim(),status=data.status==="published"?"published":"draft";
  if(!title||title.length>180||body.length>30000)return response({error:"Invalid title or body"},400);
  const validUrl=v=>!v||(/^https:\/\//.test(v)&&v.length<2048);
@@ -23,6 +24,7 @@ export async function onRequestPut({request,env}) {
  if(!authorized(request,env))return response({error:"Unauthorized"},401);
  if(!env.DB)return response({error:"Database unavailable"},503);
  let data;try{data=await request.json()}catch{return response({error:"Invalid JSON"},400)}
+ if(!data||typeof data!=="object"||Array.isArray(data))return response({error:"Invalid JSON object"},400);
  const id=String(data.id||""),title=String(data.title||"").trim(),body=String(data.body||"").trim();
  if(!/^[a-f0-9-]{36}$/.test(id)||!title||title.length>180||body.length>30000)return response({error:"Invalid input"},400);
  const status=data.status==="published"?"published":"draft";
