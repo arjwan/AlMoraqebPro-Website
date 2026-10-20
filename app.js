@@ -29,9 +29,9 @@ const features=[
 document.getElementById('featureScroll').innerHTML=features.map(x=>`<div class="mini-feature"><b>${x[0]} ${x[1]}</b><p>${x[2]}</p></div>`).join('');
 document.getElementById('year').textContent=new Date().getFullYear();
 const visitorCount=document.getElementById('visitorCount');
-// Total cumulative visits are stored only in Cloudflare D1, never in localStorage.
+// One shared cumulative counter: D1 is the source of truth.
 visitorCount.textContent='—';
-fetch('/api/visitors',{cache:'no-store'}).then(response=>{if(!response.ok)throw new Error('Visit counter unavailable');return response.json()}).then(data=>{const visits=Number(data.visits);if(!Number.isSafeInteger(visits)||visits<0)throw new Error('Invalid total');visitorCount.textContent=visits.toLocaleString('ar-IQ')}).catch(()=>{visitorCount.textContent='—';visitorCount.title='إجمالي الزيارات غير متاح مؤقتاً';});
+fetch('/api/visitors',{cache:'no-store'}).then(response=>{if(!response.ok)throw new Error('Counter unavailable');return response.json()}).then(data=>{const n=Number(data.visits);if(!Number.isSafeInteger(n)||n<0)throw new Error('Invalid counter');visitorCount.textContent=n.toLocaleString('ar-IQ')}).catch(()=>{visitorCount.textContent='—';visitorCount.title='تعذر جلب إجمالي الزيارات من الخادم';});
 document.getElementById('feedbackForm').onsubmit=e=>{e.preventDefault();sessionStorage.setItem('demoFeedback',JSON.stringify({rating:rating.value,favorite:favorite.value,comment:comment.value,at:new Date().toISOString()}));feedbackStatus.textContent='✅ تم حفظ رأيك داخل جلسة التجربة الحالية.'};
 const demoVideo=document.getElementById('demoVideo');
 const presenterVideo=document.getElementById('presenterVideo');
