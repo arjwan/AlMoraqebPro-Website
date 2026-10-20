@@ -1,1 +1,13 @@
-(async()=>{const root=document.getElementById("arjwanNews");if(!root)return;try{const r=await fetch("/api/content");if(!r.ok)return;const d=await r.json();for(const p of d.posts||[]){const card=document.createElement("article");card.style.cssText="background:white;border-radius:16px;padding:18px;box-shadow:0 8px 28px #0001";const h=document.createElement("h3");h.textContent=p.title;card.append(h);if(p.image_url){const img=document.createElement("img");img.src=p.image_url;img.loading="lazy";img.alt=p.title;img.style.cssText="width:100%;max-height:280px;object-fit:cover;border-radius:10px";card.append(img)}if(p.video_url){const v=document.createElement("video");v.src=p.video_url;v.controls=true;v.preload="none";v.style.width="100%";card.append(v)}const body=document.createElement("p");body.textContent=p.body;body.style.whiteSpace="pre-wrap";card.append(body);root.append(card)}}catch{}})();
+(async()=>{
+ const allowed=['home','experience','products','benefits','tv','feedback','sales','news'];
+ try{
+  const r=await fetch('/api/content',{cache:'no-store'});if(!r.ok)throw Error('Unavailable');
+  const d=await r.json();
+  for(const post of d.posts||[]){
+   const section=allowed.includes(post.section)?post.section:'news';
+   let root=document.getElementById('cms-'+section)||(section==='news'?document.getElementById('arjwanNews'):null);
+   if(!root){const parent=document.getElementById(section);if(!parent)continue;root=document.createElement('div');root.id='cms-'+section;root.className='cms-content-grid';root.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:18px;margin-top:24px';(parent.querySelector('.wrap')||parent).append(root)}
+   root.append(window.CmsCard(post));
+  }
+ }catch{const root=document.getElementById('arjwanNews');if(root){const message=document.createElement('p');message.textContent='تعذر تحميل المواضيع مؤقتاً.';root.append(message)}}
+})();

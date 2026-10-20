@@ -12,7 +12,7 @@ const visitors=await load('functions/api/visitors.js');
 function db(){const sqlite=new DatabaseSync(':memory:');return {sqlite,prepare(sql){const stmt=sqlite.prepare(sql);const wrap=(params=[])=>({bind(...args){return wrap(args)},async run(){const r=stmt.run(...params);return {meta:{changes:Number(r.changes)}}},async all(){return {results:stmt.all(...params)}},async first(){return stmt.get(...params)}});return wrap()}}}
 const base='https://cms.example';
 const env={DB:db()};
-for(const file of ['schema.sql','schema-cms.sql','schema-cms-products.sql','schema-cms-media.sql','schema-cms-audit.sql'])env.DB.sqlite.exec(await readFile(new URL('../'+file,import.meta.url),'utf8'));
+for(const file of ['schema.sql','schema-cms.sql','schema-cms-products.sql','schema-cms-media.sql','schema-cms-audit.sql','schema-cms-layout.sql'])env.DB.sqlite.exec(await readFile(new URL('../'+file,import.meta.url),'utf8'));
 const req=(path,method='GET',data,auth=true)=>new Request(base+path,{method,headers:{Origin:base,...(auth?{Authorization:'Bearer test-only'}:{}),'Content-Type':'application/json'},...(data!==undefined?{body:JSON.stringify(data)}:{})});
 const invoke=(mod,method,data,auth=true)=>mod['onRequest'+method[0]+method.slice(1).toLowerCase()]({request:req('/api/admin/test',method,data,auth),env,data:auth?{cmsAuthorized:true}:{}});
 test('all admin operations reject missing verified middleware identity',async()=>{for(const mod of [posts,products])for(const method of ['GET','POST','PUT','DELETE'])assert.equal((await invoke(mod,method,undefined,false)).status,401)});
@@ -37,3 +37,16 @@ test('real signed Access JWT accepted; forged, expired, wrong audience and futur
  for(let i=1;i<60;i++)assert.equal((await invokeWrite()).status,201);
  assert.equal((await invokeWrite()).status,429);
  for(const c of [{email:'attacker@example.com'},{exp:1},{aud:['wrong']},{nbf:Date.now()/1000+3600}])assert.equal((await check(await jwt(c))).status,401);const forged=await jwt();assert.equal((await check(forged.slice(0,forged.lastIndexOf('.')+1)+'AAAA')).status,401);globalThis.fetch=async()=>{throw Error('network')};assert.equal((await check(await jwt())).status,503)}finally{globalThis.fetch=oldFetch}});
+
+test('published posts retain layout through editing, section moves and hiding',async()=>{
+ const r=await invoke(posts,'POST',{title:'مقال منشور',body:'أصلي',status:'published',section:'products',sort_order:-7,image_width:480,image_height:360,image_fit:'contain',image_align:'right',card_width:'full'});
+ assert.equal(r.status,201);const {id}=await r.json();
+ let list=(await (await content.onRequestGet({env})).json()).posts;let p=list.find(p=>p.id===id);assert.equal(p.section,'products');assert.equal(p.image_width,480);assert.equal(p.card_width,'full');
+ const edited={...p,title:'مقال معدل',body:'جديد',status:'published',section:'home',sort_order:-8};assert.equal((await invoke(posts,'PUT',edited)).status,200);
+ p=(await (await content.onRequestGet({env})).json()).posts.find(p=>p.id===id);assert.equal(p.title,'مقال معدل');assert.equal(p.section,'home');assert.equal(p.image_fit,'contain');assert.equal(p.image_align,'right');
+ assert.equal((await invoke(posts,'PUT',{...p,status:'draft'})).status,200);assert.ok(!(await (await content.onRequestGet({env})).json()).posts.some(p=>p.id===id));
+ assert.ok((await (await invoke(posts,'GET')).json()).posts.some(p=>p.id===id));
+});
+test('layout validation blocks invalid sections, sizes and CSS payloads',async()=>{
+ for(const invalid of [{section:'<script>'},{image_width:-1},{image_width:2000},{image_height:1001},{image_fit:'url(javascript:evil)'},{image_align:'outside'},{card_width:'all'},{sort_order:1.5},{status:'unknown'}])assert.equal((await invoke(posts,'POST',{title:'x',...invalid})).status,400);
+});
