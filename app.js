@@ -42,7 +42,7 @@ function setPresenter(mode){presenterVideo.src=presenterSources[mode];presenterV
 presenterToggle.onclick=()=>{if(presenterVideo.paused){presenterVideo.play().catch(()=>{});presenterToggle.textContent='إيقاف الشرح';presenterToggle.setAttribute('aria-pressed','true')}else{presenterVideo.pause();presenterToggle.textContent='تشغيل الشرح';presenterToggle.setAttribute('aria-pressed','false')}};
 setPresenter('mobile');
 document.getElementById('mobileDemoBtn').onclick=()=>{demoVideo.src='https://pub-951dca32c4044eb1a368aac6b364badf.r2.dev/mobile-app-demo.mp4?v=redacted';setPresenter('mobile');demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
-document.getElementById('adminDemoBtn').onclick=()=>{demoVideo.src='admin-demo-web.mp4';setPresenter('admin');demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
+document.getElementById('adminDemoBtn').onclick=()=>{demoVideo.src='https://pub-951dca32c4044eb1a368aac6b364badf.r2.dev/admin-demo-redacted.mp4';setPresenter('admin');demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
 document.getElementById('tvDemoBtn').onclick=()=>document.getElementById('tv').scrollIntoView({behavior:'smooth'});
 document.querySelectorAll('[data-tv]').forEach(b=>b.onclick=()=>{tvVideo.src=b.dataset.tv;tvVideo.play().catch(()=>{})});
 document.getElementById('fullscreenBtn').onclick=()=>document.getElementById('tvScreen').requestFullscreen?.();
