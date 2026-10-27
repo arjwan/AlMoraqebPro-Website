@@ -41,7 +41,7 @@ const presenterSources={mobile:'media/presenter/mobile-explanation.mp4',admin:'m
 function setPresenter(mode){presenterVideo.src=presenterSources[mode];presenterVideo.load();presenterVideo.onloadeddata=()=>{presenterVideo.hidden=false;presenterToggle.disabled=false;presenterStatus.textContent='شرح صوتي ومزامنة حركة الشفاه جاهزان عند إضافة فيديو المقدمة';};presenterVideo.onerror=()=>{presenterVideo.hidden=true;presenterToggle.disabled=true;presenterStatus.textContent='فيديو المقدمة النهائي غير مضاف بعد';};}
 presenterToggle.onclick=()=>{if(presenterVideo.paused){presenterVideo.play().catch(()=>{});presenterToggle.textContent='إيقاف الشرح';presenterToggle.setAttribute('aria-pressed','true')}else{presenterVideo.pause();presenterToggle.textContent='تشغيل الشرح';presenterToggle.setAttribute('aria-pressed','false')}};
 setPresenter('mobile');
-document.getElementById('mobileDemoBtn').onclick=()=>{demoVideo.src='mobile-app-demo.mp4';setPresenter('mobile');demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
+document.getElementById('mobileDemoBtn').onclick=()=>{demoVideo.src='https://pub-951dca32c4044eb1a368aac6b364badf.r2.dev/mobile-app-demo.mp4?v=redacted';setPresenter('mobile');demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
 document.getElementById('adminDemoBtn').onclick=()=>{demoVideo.src='admin-demo-web.mp4';setPresenter('admin');demoVideo.play().catch(()=>{});demoScreen.scrollIntoView({behavior:'smooth',block:'center'});};
 document.getElementById('tvDemoBtn').onclick=()=>document.getElementById('tv').scrollIntoView({behavior:'smooth'});
 document.querySelectorAll('[data-tv]').forEach(b=>b.onclick=()=>{tvVideo.src=b.dataset.tv;tvVideo.play().catch(()=>{})});
